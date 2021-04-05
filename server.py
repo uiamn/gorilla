@@ -10,7 +10,7 @@ def get_results() -> str:
         cur = conn.cursor()
 
         tweets = cur.execute(
-            'SELECT tweet, tweet_id, filename, created_at FROM tweets ORDER BY created_at DESC'
+            'SELECT tweet, tweet_id_str, filename, created_at FROM tweets ORDER BY created_at DESC'
         ).fetchall()
 
     result = [
