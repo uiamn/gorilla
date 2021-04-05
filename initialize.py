@@ -22,4 +22,6 @@ def create_tables(db_path: str) -> None:
     conn.close()
 
 if __name__ == '__main__':
+    with open('LATEST_TWEET_ID.txt', 'w') as f:
+        f.write('0')
     create_tables('db.sqlite3')
