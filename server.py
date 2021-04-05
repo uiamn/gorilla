@@ -10,11 +10,11 @@ def get_results() -> str:
         cur = conn.cursor()
 
         tweets = cur.execute(
-            'SELECT tweet, filename, created_at FROM tweets ORDER BY created_at DESC'
+            'SELECT tweet, tweet_id, filename, created_at FROM tweets ORDER BY created_at DESC'
         ).fetchall()
 
     result = [
-        {'tweet': t, 'filename': f, 'created_at': c} for t, f, c in tweets
+        {'tweet': t, 'tweet_id': i, 'filename': f, 'created_at': c} for t, i, f, c in tweets
     ]
 
     return flask.jsonify(result)
