@@ -88,8 +88,8 @@ def add_tweet(status: tweepy.Status, temp_filename: str) -> None:
     cur = conn.cursor()
 
     cur.execute(
-        'INSERT INTO tweets (tweet, filename, created_at) VALUES (?, ?, ?)',
-        (status.text, filename, created_at)
+        'INSERT INTO tweets (tweet, tweet_id_str, filename, created_at) VALUES (?, ?, ?, ?)',
+        (status.text, status.id_str, filename, created_at)
     )
 
     conn.commit()
