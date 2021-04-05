@@ -13,6 +13,7 @@ def create_tables(db_path: str) -> None:
         'CREATE TABLE tweets( \
             id INTEGER PRIMARY KEY AUTOINCREMENT, \
             tweet TEXT, \
+            tweet_id_str TEXT, \
             filename TEXT UNIQUE, \
             created_at TEXT \
         )'
