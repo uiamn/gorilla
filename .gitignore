@@ -1,0 +1,9 @@
+.env
+
+LATEST_TWEET_ID.txt
+db.sqlite3
+
+images/*
+temp/*
+
+!.gitkeep
