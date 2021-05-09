@@ -1,6 +1,6 @@
 # GORILLA
 
-Gallery Otoge Results I L L A
+GORILLA is an Otoge Result Images Listing Light Application 
 
 ## Getting Started
 
