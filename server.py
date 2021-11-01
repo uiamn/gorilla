@@ -35,10 +35,8 @@ def top_page() -> str:
 @app.route('/register', methods=['POST'])
 def register() -> str:
     data = request.json
-    print(data)
 
     # 一応 Discord ID の形式を確認しておく
-    print(re.match(r'.+#[0-9]{4}', data['discord_id']))
     if not re.match(r'.+#[0-9]{4}', data['discord_id']):
         return flask.jsonify({
             'is_successful': False,
@@ -66,7 +64,7 @@ def register() -> str:
         cur = conn.cursor()
         user = cur.execute('SELECT * FROM users WHERE portal_id = ?', (portal_id, )).fetchone()
         if user is None:
-            cur.execute('INSERT INTO users(discord_id, portal_id, is_enable) VALUES (?, ?)', (discord_id, portal_id, data['is_start']))
+            cur.execute('INSERT INTO users(discord_id, portal_id, is_enable) VALUES (?, ?, ?)', (discord_id, portal_id, data['is_start']))
             message = '登録が完了しました'
         else:
             cur.execute('UPDATE users SET is_enable = ?, discord_id = ? WHERE portal_id = ?', (data['is_start'], discord_id, portal_id))
