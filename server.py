@@ -1,7 +1,6 @@
 import flask
 from flask import request
 import sqlite3
-from flask.json import jsonify
 import requests  # urllibに置き換えたい
 import re
 
@@ -10,11 +9,15 @@ app = flask.Flask(__name__, static_folder='images')
 
 @app.route('/results', methods=['GET'])
 def get_results() -> str:
+    user_id = request.args.get('user')
+    if user_id is None:
+        return flask.jsonify([])
+
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
 
         tweets = cur.execute(
-            'SELECT tweet, tweet_id_str, filename, created_at FROM tweets ORDER BY created_at DESC'
+            'SELECT results '
         ).fetchall()
 
     result = [
@@ -37,7 +40,7 @@ def register() -> str:
     # 一応 Discord ID の形式を確認しておく
     print(re.match(r'.+#[0-9]{4}', data['discord_id']))
     if not re.match(r'.+#[0-9]{4}', data['discord_id']):
-        return jsonify({
+        return flask.jsonify({
             'is_successful': False,
             'message': 'Discord ID が不正です'
         })
@@ -54,22 +57,22 @@ def register() -> str:
     )
 
     if a.status_code == 403:
-        return jsonify({
+        return flask.jsonify({
             'is_successful': False,
             'message': 'portal の user id か password が不正です'
         })
 
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
-        user = cur.execute('SELECT * FROM users WHERE discord_id = ?', (discord_id, )).fetchone()
+        user = cur.execute('SELECT * FROM users WHERE portal_id = ?', (portal_id, )).fetchone()
         if user is None:
-            cur.execute('INSERT INTO users(discord_id, is_enable) VALUES (?, ?)', (discord_id, data['is_start']))
+            cur.execute('INSERT INTO users(discord_id, portal_id, is_enable) VALUES (?, ?)', (discord_id, portal_id, data['is_start']))
             message = '登録が完了しました'
         else:
-            cur.execute('UPDATE users SET is_enable = ? WHERE discord_id = ?', (data['is_start'], discord_id))
+            cur.execute('UPDATE users SET is_enable = ?, discord_id = ? WHERE portal_id = ?', (data['is_start'], discord_id, portal_id))
             message = '変更が完了しました'
 
-    return jsonify({
+    return flask.jsonify({
         'is_successful': True,
         'message': message
     })

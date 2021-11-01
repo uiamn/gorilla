@@ -12,6 +12,7 @@ def create_tables(db_path: str) -> None:
     cur.execute(
         'CREATE TABLE users( \
             id INTEGER PRIMARY KEY AUTOINCREMENT, \
+            portal_id TEXT UNIQUE, \
             discord_id TEXT UNIQUE, \
             is_enable INT \
         )'
@@ -24,7 +25,7 @@ def create_tables(db_path: str) -> None:
             comment TEXT, \
             filename TEXT UNIQUE, \
             created_at TEXT, \
-            FOREIGN KEY (user) REFERENCES users(id) \
+            FOREIGN KEY (user) REFERENCES users(portal_id) \
         )'
     )
 
