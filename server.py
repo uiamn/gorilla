@@ -1,8 +1,17 @@
 import flask
 import sqlite3
+from flask_cors import CORS
 
 DB_PATH = 'db.sqlite3'
 app = flask.Flask(__name__, static_folder='images')
+CORS(app)
+
+@app.after_request
+def after_request(response):
+  # response.headers.add('Access-Control-Allow-Origin', '*')
+  response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+  response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+  return response
 
 @app.route('/results', methods=['GET'])
 def get_results() -> str:
@@ -21,4 +30,4 @@ def get_results() -> str:
 
 
 if __name__ == "__main__":
-    app.run(debug=False, host='0.0.0.0', port=34567)
+    app.run(debug=False, host='0.0.0.0', port=34568)
