@@ -16,12 +16,12 @@ def get_results() -> str:
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
 
-        tweets = cur.execute(
-            'SELECT results '
+        query_res = cur.execute(
+            'SELECT filename, created_at FROM results WHERE user = ?', (user_id, )
         ).fetchall()
 
     result = [
-        {'tweet': t, 'tweet_id': i, 'filename': f, 'created_at': c} for t, i, f, c in tweets
+        {'filename': f, 'created_at': c} for f, c in query_res
     ]
 
     return flask.jsonify(result)
