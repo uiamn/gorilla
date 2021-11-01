@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gorilla</title>
+</head>
+<body>
+    <h1>Gorilla</h1>
+    <div>
+        <p>
+            BEATECH Discord に投稿された result 画像を BEATECH ポータルサイトの部員ページに成果報告として表示します．
+        </p>
+    </div>
+
+    <div>
+        <div>
+            <label for="portal-userid">BEATECH portal の user id: </label><input id="portal-userid">
+        </div>
+        <div>
+            <label for="portal-password">BEATECH portal の password: </label><input id="portal-password" type="password">
+        </div>
+        <div>
+            <label for="discord-id">Discord の ID (xxxx#1234という形式で入力): </label><input id="discord-id">
+        </div>
+        <div>
+            <select id="is-start">
+                <option value="1">収集を開始</option>
+                <option value="0">収集を停止</option>
+            </select>
+        </div>
+        <button id="submit-button">登録</button>
+    </div>
+</body>
+<script>
+    document.getElementById('submit-button').onclick = () => {
+        const portalUserId = document.getElementById('portal-userid').value
+        const portalPassword = document.getElementById('portal-password').value
+        const discordId = document.getElementById('discord-id').value
+        const isStart = Number(document.getElementById('is-start').value)
+
+        if(!discordId.match('.+#[0-9]{4}')) {
+            alert('discord id が不正です')
+            return
+        }
+
+        fetch('/register', {
+            method: 'POST',
+            body: JSON.stringify({
+                portal_id: portalUserId,
+                portal_pass: portalPassword,
+                discord_id: discordId,
+                is_start: isStart
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(res => res.json()).then(
+            res => {
+                alert(res.message)
+            }
+        )
+    }
+</script>
+</html>

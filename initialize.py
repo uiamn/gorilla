@@ -10,12 +10,21 @@ def create_tables(db_path: str) -> None:
     cur = conn.cursor()
 
     cur.execute(
-        'CREATE TABLE tweets( \
+        'CREATE TABLE users( \
             id INTEGER PRIMARY KEY AUTOINCREMENT, \
-            tweet TEXT, \
-            tweet_id_str TEXT, \
+            discord_id TEXT UNIQUE, \
+            is_enable INT \
+        )'
+    )
+
+    cur.execute(
+        'CREATE TABLE results( \
+            id INTEGER PRIMARY KEY AUTOINCREMENT, \
+            user INTEGER, \
+            comment TEXT, \
             filename TEXT UNIQUE, \
-            created_at TEXT \
+            created_at TEXT, \
+            FOREIGN KEY (user) REFERENCES users(id) \
         )'
     )
 
@@ -23,6 +32,4 @@ def create_tables(db_path: str) -> None:
     conn.close()
 
 if __name__ == '__main__':
-    with open('LATEST_TWEET_ID.txt', 'w') as f:
-        f.write('0')
     create_tables('db.sqlite3')
