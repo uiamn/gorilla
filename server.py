@@ -16,6 +16,7 @@ def after_request(response):
   response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
   return response
 
+
 @app.route('/results', methods=['GET'])
 def get_results() -> str:
     user_id = request.args.get('user')
@@ -25,9 +26,16 @@ def get_results() -> str:
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
 
-        query_res = cur.execute(
-            'SELECT filename, created_at FROM results WHERE user = ?', (user_id, )
-        ).fetchall()
+        query = '''
+            SELECT filename, created_at
+            FROM results r
+            JOIN users u ON r.user = u.portal_id
+            WHERE u.portal_id = ? and u.is_enable = 1
+            ORDER BY created_at DESC
+            LIMIT 10
+        '''
+
+        query_res = cur.execute(query, (user_id, )).fetchall()
 
     result = [
         {'filename': f, 'created_at': c} for f, c in query_res
