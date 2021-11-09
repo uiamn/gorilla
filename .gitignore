@@ -3,7 +3,7 @@
 LATEST_TWEET_ID.txt
 db.sqlite3
 
-images/*
+server/images/*
 temp/*
 
 !.gitkeep

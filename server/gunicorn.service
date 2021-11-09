@@ -1,0 +1,26 @@
+[Unit]
+Description=gunicorn daemon
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+Type=notify
+PIDFile=/run/gunicorn/pid
+User=root
+Group=root
+RuntimeDirectory=gunicorn
+WorkingDirectory=/server
+ExecStart=/usr/local/bin/gunicorn \
+                --access-logfile - \
+                --workers 3 \
+                --bind unix:/run/gunicorn/gunicorn.sock \
+                server:app
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
