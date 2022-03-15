@@ -2,8 +2,11 @@ import datetime
 import re
 import sqlite3
 import uuid
+from async_timeout import asyncio
 
 import discord
+
+from typing import Optional
 
 DB_PATH = '../db.sqlite3'
 REGEX_PICTURE = r'.+\.(png|jpe?g)'
@@ -12,7 +15,29 @@ REGEX_PICTURE = r'.+\.(png|jpe?g)'
 with open('.token') as f:
     TOKEN = f.read().strip()
 
-client = discord.Client()
+
+intents = discord.Intents.default()
+intents.members = True
+intents.reactions = True
+
+client = discord.Client(intents=intents)
+temp_channel: Optional[discord.TextChannel] = None
+
+@client.event
+async def on_ready() -> None:
+    pass
+
+@client.event
+async def on_reaction_add(reaction: discord.Reaction, user: discord.User) -> None:
+    if reaction.emoji == '\N{KEY}' and temp_channel is not None:
+        await temp_channel.set_permissions(user, read_messages=True, send_messages=True)
+
+@client.event
+async def on_reaction_remove(reaction: discord.Reaction, user: discord.User) -> None:
+    if reaction.emoji == '\N{KEY}' and temp_channel is not None:
+        await temp_channel.set_permissions(user, read_messages=False, send_messages=False)
+
+
 
 @client.event
 async def on_message(msg: discord.Message) -> None:
@@ -22,6 +47,10 @@ async def on_message(msg: discord.Message) -> None:
     print(msg.author)
     print(type(msg.author))
     print(str(msg.author))
+
+    if msg.content.startswith('?start') and temp_channel is None:
+        print(client.guilds[0])
+        await start_temp_channel(client.guilds[0], msg.channel)  # 多分 BEATECH サーバにしか入ってないので．．．
 
     if msg.channel.name not in ['result', 'test']:
         # resultチャネル以外は読まない
@@ -58,5 +87,25 @@ async def on_message(msg: discord.Message) -> None:
                 'INSERT INTO results(user, comment, filename, created_at) VALUES (?, "", ?, ?)',
                 (author[0], save_filename, datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
             )
+
+
+async def start_temp_channel(guild: discord.Guild, channel: discord.TextChannel) -> None:
+    sent_message = await channel.send('一時的なテキストチャネルを作りました．下の絵文字クリックで参加．もう一度クリックで退出．')
+    await sent_message.add_reaction('\N{KEY}')
+
+    global temp_channel
+    temp_channel = await guild.create_text_channel('一時雑談鯖', overwrites={
+        guild.default_role: discord.PermissionOverwrite(read_messages=False),
+        guild.me: discord.PermissionOverwrite(read_messages=True, send_messages=True)
+    })
+    msg ='''雑談用の一時的なチャネルです．
+**\N{WARNING SIGN}\N{WARNING SIGN}\N{WARNING SIGN}2時間後に内容ごと消えます\N{WARNING SIGN}\N{WARNING SIGN}\N{WARNING SIGN}**
+残したい内容はここで会話しないようにしてください．
+'''
+    await temp_channel.send(msg)
+    await asyncio.sleep(60*60*2)
+    await temp_channel.delete()
+    temp_channel = None
+
 
 client.run(TOKEN)
